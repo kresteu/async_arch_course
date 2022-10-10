@@ -1,26 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import {Injectable} from '@nestjs/common';
+import {CreateTaskDto} from './dto/create-task.dto';
 import {InjectRepository} from "@nestjs/typeorm";
-import {Task} from "./entities/task.entity";
+import {Task, TaskStatus} from "./entities/task.entity";
 import {Repository} from "typeorm";
-import {User, UserRole} from "../users/entities/user.entity";
+import {UsersService} from "../users/users.service";
 
 @Injectable()
 export class TasksService {
   constructor(
       @InjectRepository(Task)
       private taskRepository: Repository<Task>,
-      @InjectRepository(User)
-      private userRepository: Repository<User>,
+      private userService: UsersService,
   ) {}
 
   async create(createTaskDto: CreateTaskDto) {
-    //todo find random user
-    let assignee = await this.userRepository.findOne({where: {role: UserRole.developer}});
+    let assignee = await this.userService.findRandomUser();
     if (!assignee) {
       console.log('no assignee');
-      return;//todo throw exception
+      return;
     }
     let task = this.taskRepository.create({
       title: createTaskDto.title,
@@ -36,15 +33,30 @@ export class TasksService {
     return this.taskRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async closeTask(id: string) {
+    let task = await this.taskRepository.findOne({where: {public_id: id}});
+    if (!task) {
+      console.log('no task by id '+id);
+      return;
+    }
+    task.status = TaskStatus.closed;
+    await this.taskRepository.save(task);
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async shuffle() {
+    const tasks = await this.taskRepository.find({where: {status: TaskStatus.open}});
+    for (let i in tasks) {
+      await this._reassign(tasks[i]);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async _reassign(task: Task) {
+    let assignee = await this.userService.findRandomUser();
+    if (!assignee) {
+      console.log('no assignee');
+      return;
+    }
+    task.assignee = assignee;
+    await this.taskRepository.save(task);
   }
 }

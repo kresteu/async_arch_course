@@ -3,32 +3,41 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Authentication service</title>
+    <title>Task tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 </head>
 <body>
 <div class="container">
 
-    <h1>All users</h1>
+    <h1>All tasks</h1>
 
-    <a href="users/create_form?jwt={{ jwt }}">Create new user</a>
+    <a href="tasks/shuffle" class="btn btn-primary">Reassign All Tasks</a>
     <br>
+    <br>
+
+    <a href="tasks/create_form">Create a new task</a>
+    <br>
+
     <table class="table">
         <thead>
         <tr>
             <th scope="col">public id</th>
             <th scope="col">name</th>
-            <th scope="col">password</th>
-            <th scope="col">role</th>
+            <th scope="col">description</th>
+            <th scope="col">status</th>
+            <th scope="col">assignee</th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
         {{#each list}}
             <tr>
                 <td>{{ public_id }}</td>
-                <td>{{ name }}</td>
-                <td>{{ password }}</td>
-                <td>{{ role }}</td>
+                <td>{{ title }}</td>
+                <td>{{ description }}</td>
+                <td>{{ status }}</td>
+                <td>{{ assignee.name }}</td>
+                <td><a href="tasks/close/{{ public_id }}" class="btn btn-primary">Close</a></td>
             </tr>
         {{/each}}
         </tbody>

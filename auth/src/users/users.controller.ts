@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Res, Render} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Res, Render, Query} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,21 +9,25 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+  async create(
+      @Body() createUserDto: CreateUserDto,
+      @Res() res: Response,
+      @Query() query,
+      ) {
     await this.usersService.create(createUserDto);
-    res.redirect('users');
+    res.redirect('users?jwt='+query.jwt);
   }
 
   @Get('create_form')
   @Render('create_form')
-  create_form() {
-    return {};
+  create_form(@Query() query) {
+    return {jwt: query.jwt};
   }
 
   @Get()
   @Render('users')
-  async findAll() {
-    return {list: await this.usersService.findAll()};
+  async findAll(@Query() query) {
+    return {list: await this.usersService.findAll(), jwt: query.jwt};
   }
 
   @Get(':id')

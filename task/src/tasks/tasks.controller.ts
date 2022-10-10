@@ -9,7 +9,10 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  async create(@Body() createTaskDto: CreateTaskDto, @Res() res: Response) {
+  async create(
+      @Body() createTaskDto: CreateTaskDto,
+      @Res() res: Response
+  ) {
     await this.tasksService.create(createTaskDto);
     res.redirect('tasks');
   }
@@ -18,7 +21,7 @@ export class TasksController {
   //@Render('tasks/index')
   async findAll(@Res() res: Response) {
     return res.render(
-        'tasks/index',
+        'tasks/list',
         {
           list: await this.tasksService.findAll(),
         },
@@ -32,25 +35,20 @@ export class TasksController {
     return {};
   }
 
-  @Get('update_form/:id')
-  update_form(@Param('id') id: string) {
-    if (!!id) {
-      let task = this.tasksService.findOne(+id);
-    }
+  @Get('close/:id')
+  async close(
+      @Param('id') id: string,
+      @Res() res: Response
+  ) {
+    console.log(`id: ${id}`)
+    await this.tasksService.closeTask(id);
+    res.redirect('/tasks');
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+  @Get('shuffle')
+  async shuffle(@Res() res: Response) {
+    await this.tasksService.shuffle();
+    res.redirect('/tasks');
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
-  }
 }
