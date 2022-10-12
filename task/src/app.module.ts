@@ -6,10 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import {Task} from "./tasks/entities/task.entity";
 import {User} from "./users/entities/user.entity";
+import {APP_GUARD} from "@nestjs/core";
+import {HttpModule} from "@nestjs/axios";
+import {AuthModule} from "./auth/auth.module";
+import {JwtAuthGuard} from "./auth/jwt-auth.guard";
 
 @Module({
   imports: [
     TasksModule,
+    HttpModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -23,8 +28,15 @@ import {User} from "./users/entities/user.entity";
      // logging: true,
     }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+      AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

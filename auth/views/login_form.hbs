@@ -12,6 +12,7 @@
     <div class="w-50">
 
         <form action="/auth/login" method="post">
+            <input type="hidden" name="clientId" value="{{ clientId }}">
             <div class="form-group">
                 <label for="username">Name</label>
                 <input type="text" class="form-control" id="username" name="username">

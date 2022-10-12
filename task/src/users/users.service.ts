@@ -13,4 +13,8 @@ export class UsersService {
     findRandomUser() {
         return this.userRepository.findOne({where: {role: UserRole.developer}});
     }
+
+    findOneById(id: string) {
+        return this.userRepository.findOne({where: {public_id: id}});
+    }
 }

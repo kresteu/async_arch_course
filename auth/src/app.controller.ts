@@ -1,9 +1,9 @@
-import {Controller, Request, Post, UseGuards, Get, Render, Res} from '@nestjs/common';
+import {Controller, Request, Post, UseGuards, Get, Render, Res, Query, Body} from '@nestjs/common';
 import {LocalAuthGuard} from "./auth/quards/local-auth.guard";
 import {AuthService} from "./auth/auth.service";
-import {JwtAuthGuard} from "./auth/quards/jwt-auth.guard";
 import {Public} from "./metadata";
 import { Response } from 'express';
+import {LoginDto} from "./auth/dto/login.dto";
 
 @Controller()
 export class AppController {
@@ -12,21 +12,28 @@ export class AppController {
   @Get()
   @Public()
   @Render('login_form')
-  login_form() {
-    return {};
+  login_form(@Query() query) {
+    return {
+      clientId: query.client_id,
+    };
   }
 
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
-  async login(@Request() req, @Res() res: Response) {
+  async login(
+      @Request() req,
+      @Body() loginDto: LoginDto,
+      @Res() res: Response
+  ) {
+    let user = req.user;
+    user['clientId'] = loginDto.clientId;
     let result = await this.authService.login(req.user);
-    res.redirect('/users?jwt='+result.access_token);
+    if (!!loginDto.clientId) {
+      res.redirect('http://localhost:1000/tasks?jwt='+result.access_token);
+    } else {
+      res.redirect('/users?jwt='+result.access_token);
+    }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
 }

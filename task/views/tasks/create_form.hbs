@@ -12,12 +12,12 @@
     <h1>Create a new task</h1>
 
 
-    <a href="/tasks">Back to the list</a>
+    <a href="/tasks?jwt={{ jwt }}">Back to the list</a>
     <br>
 
     <div class="w-50">
 
-        <form action="/tasks" method="post">
+        <form action="/tasks?jwt={{ jwt }}" method="post">
             <div class="form-group">
                 <label for="title">Title</label>
                 <input type="text" class="form-control" id="title" name="title">
